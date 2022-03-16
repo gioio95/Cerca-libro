@@ -21,9 +21,14 @@ class Libro {
     this.editore = mappa['volumeInfo']['publisher'] == null
         ? ''
         : mappa['volumeInfo']['publisher'].toString();
-    this.immagineCopertina =
-        mappa['volumeInfo']['imageLinks']['smallThumbnail'] == null
-            ? ''
-            : mappa['volumeInfo']['imageLinks']['smallThumbnail'].toString();
+    try {
+      if (mappa['volumeInfo']['imageLinks']['smallThumbnail'] != null) {
+        this.immagineCopertina =
+            mappa['volumeInfo']['imageLinks']['smallThumbnail'].toString();
+      }
+    } catch (e) {
+      print('url immagine non trovata');
+      this.immagineCopertina = '';
+    }
   }
 }

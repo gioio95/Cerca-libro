@@ -4,7 +4,8 @@ import 'libro.dart';
 
 class LibroScreen extends StatelessWidget {
   final Libro libro;
-  const LibroScreen(this.libro);
+
+  const LibroScreen({Key? key, required this.libro}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,32 +13,37 @@ class LibroScreen extends StatelessWidget {
       appBar: AppBar(title: Text(libro.titolo)),
       body: SingleChildScrollView(
           padding: EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: Image.network(libro.immagineCopertina),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: Text(
-                  'Scrittori: ' + libro.autori,
-                  style: TextStyle(
-                      fontSize: 20,
-                      color: Theme.of(context).colorScheme.primary),
+          child: Center(
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(8),
+                  child: libro.immagineCopertina == ''
+                      ? Text('Not immage')
+                      : Image.network(libro.immagineCopertina),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: Text('Editore: ' + libro.editore ,  style: TextStyle(
-                    fontSize: 20,
-                )),
-              ),
-              Padding(
-                padding: EdgeInsets.all(8),
-                child: Text(libro.descrizione),
-              ),
-            ],
+                Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(
+                    'Scrittori: ' + libro.autori,
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text('Editore: ' + libro.editore,
+                      style: TextStyle(
+                        fontSize: 20,
+                      )),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text(libro.descrizione),
+                ),
+              ],
+            ),
           )),
     );
   }

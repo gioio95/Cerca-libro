@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -38,12 +39,12 @@ class _LibriScreenState extends State<LibriScreen> {
   Icon icona = Icon(Icons.search);
   Widget widgetRicerca = Text('Libri');
 
-  String risultato = '';
+  String risultato = 'Effettua una ricerca';
   List<Libro> libri = [];
 
   @override
   void initState() {
-    cercaLibri('flutter');
+    cercaLibri('');
     super.initState();
   }
 
@@ -51,23 +52,29 @@ class _LibriScreenState extends State<LibriScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: widgetRicerca),
-      body: ListView.builder(
-          itemCount: libri.length,
-          itemBuilder: ((BuildContext context, int index) {
-            return Card(
-              elevation: 2,
-              child: ListTile(
-                onTap: () {
-                  MaterialPageRoute route = MaterialPageRoute(
-                      builder: (_) => LibroScreen(libri[index]));
-                  Navigator.push(context, route);
-                },
-                leading: Image.network(libri[index].immagineCopertina),
-                title: Text(libri[index].titolo),
-                subtitle: Text(libri[index].autori),
-              ),
-            );
-          })),
+      body: libri.length == 0
+          ? Center(
+              child: Text(risultato),
+            )
+          : ListView.builder(
+              itemCount: libri.length,
+              itemBuilder: ((BuildContext context, int index) {
+                return Card(
+                  elevation: 2,
+                  child: ListTile(
+                    onTap: () {
+                      MaterialPageRoute route = MaterialPageRoute(
+                          builder: (_) => LibroScreen(libro: libri[index]));
+                      Navigator.push(context, route);
+                    },
+                    leading: libri[index].immagineCopertina == ''
+                        ? Text('Not immage')
+                        : Image.network(libri[index].immagineCopertina),
+                    title: Text(libri[index].titolo),
+                    subtitle: Text(libri[index].autori),
+                  ),
+                );
+              })),
     );
   }
 
@@ -75,26 +82,28 @@ class _LibriScreenState extends State<LibriScreen> {
     final String dominio = 'www.googleapis.com';
     final String percorso = '/books/v1/volumes';
     Map<String, dynamic> parametri = {'q': ricerca};
-    double tempoTrascorso = 0;
-    var timer =
-        Timer(Duration(seconds: 1), () => tempoTrascorso = tempoTrascorso + 1);
+
     final Uri url = Uri.https(dominio, percorso, parametri);
-
-    http.get(url).then((res) {
-      final resJson = json.decode(res.body);
-      final libriMap = resJson['items'];
-
-      libri = libriMap.map<Libro>((value) => Libro.fromMap(value)).toList();
-
-      setState(() {
-        libri = libri;
-        print('tempo trascorso in secondi: ' + tempoTrascorso.toString());
-        timer.cancel();
-        risultato = res.body;
-      });
-    });
+    print(url);
     setState(() {
       risultato = "Caricamento in corso";
     });
+    try {
+      http.get(url).then((res) {
+        final resJson = json.decode(res.body);
+        final libriMap = resJson['items'];
+        print(libriMap);
+        if (libriMap != null)
+          libri = libriMap.map<Libro>((value) => Libro.fromMap(value)).toList();
+
+        setState(() {
+          risultato = 'Effettua una ricerca';
+          libri = libri;
+        });
+      });
+    } on SocketException catch (e) {
+      print('not connected2');
+      print(e);
+    }
   }
 }
