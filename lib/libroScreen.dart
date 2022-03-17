@@ -33,7 +33,10 @@ class LibroScreen extends StatelessWidget {
                 ),
                 Padding(
                   padding: EdgeInsets.all(8),
-                  child: Text('Editore: ' + libro.editore,
+                  child: Text(
+                      libro.editore == ''
+                          ? 'Editore non presente'
+                          : 'Editore: ' + libro.editore,
                       style: TextStyle(
                         fontSize: 20,
                       )),

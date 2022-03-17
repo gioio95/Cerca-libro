@@ -51,7 +51,33 @@ class _LibriScreenState extends State<LibriScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: widgetRicerca),
+      appBar: AppBar(
+        title: widgetRicerca,
+        actions: [
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  if (icona.icon == Icons.search) {
+                    icona = Icon(Icons.cancel);
+                    widgetRicerca = TextField(
+                      textInputAction: TextInputAction.search,
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      onChanged: (value) =>
+                          cercaLibri(value), //cerca al cambiamento
+                      onSubmitted: (value) =>
+                          cercaLibri(value), //cerca all'invio
+                    );
+                  } else {
+                    setState(() {
+                      widgetRicerca = Text('Libri');
+                      icona = Icon(Icons.search);
+                    });
+                  }
+                });
+              },
+              icon: icona)
+        ],
+      ),
       body: libri.length == 0
           ? Center(
               child: Text(risultato),
@@ -84,7 +110,7 @@ class _LibriScreenState extends State<LibriScreen> {
     Map<String, dynamic> parametri = {'q': ricerca};
 
     final Uri url = Uri.https(dominio, percorso, parametri);
-    print(url);
+
     setState(() {
       risultato = "Caricamento in corso";
     });
@@ -92,7 +118,7 @@ class _LibriScreenState extends State<LibriScreen> {
       http.get(url).then((res) {
         final resJson = json.decode(res.body);
         final libriMap = resJson['items'];
-        print(libriMap);
+
         if (libriMap != null)
           libri = libriMap.map<Libro>((value) => Libro.fromMap(value)).toList();
 
@@ -102,8 +128,10 @@ class _LibriScreenState extends State<LibriScreen> {
         });
       });
     } on SocketException catch (e) {
-      print('not connected2');
       print(e);
+      setState(() {
+        risultato = 'Errore nella ricerca';
+      });
     }
   }
 }
